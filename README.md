@@ -16,7 +16,7 @@
 
 #Como usar:
 --------------------------------------------------------------------------------------------------------------------------------------
--Primeiro, tenho um url do Youtube copiado
+-Primeiro, tenha um url do Youtube copiado
 
 
 -Cole na caixa de texto do url
