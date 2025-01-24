@@ -9,7 +9,9 @@
 
 -Pytube(APIs)
 
--tkinter(APIs)
+-Tkinter(APIs)
+
+-Time
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
@@ -25,7 +27,7 @@
 -Em seguida escolha um diretorio (obs: se o diretorio nao for escolhido, o sofware nao vai funcionar)
 
 
--Clique em baixar e pronto, aparecerá que o download da musica foi concluido (obs: se algo acontecer com o url, ou nao ser valido, o sofware vai dá um erro )
+-Clique em baixar e pronto, aparecerá que o download da musica/Video foi concluido (obs: se algo acontecer com o url, ou nao ser valido, o sofware vai dá um erro )
 
 
 -Caso queira fazer um novo download, limpe os campos com o botão limpar que ele limpará automaticamente 
@@ -34,6 +36,10 @@
 
 # UPDATE:(24/01/2025)
 --------------------------------------------------------------------------------------------------------------------------------------
--Implementação de Download de Vídeos
+-Implementação de Download de Vídeos.
 
--botoes de escolha de Download para Vídeo ou Música
+-botoes de escolha de Download para Vídeo ou Música.
+
+-ProgressBar (Ou quase um) meramente ilustrativo.
+
+-Remoção do codigo de mostrar o nome da musica/video no texto do 'Donwload Concluido'
