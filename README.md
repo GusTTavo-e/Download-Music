@@ -31,3 +31,9 @@
 -Caso queira fazer um novo download, limpe os campos com o botão limpar que ele limpará automaticamente 
 
 --------------------------------------------------------------------------------------------------------------------------------------
+
+# UPDATE:(24/01/2025)
+--------------------------------------------------------------------------------------------------------------------------------------
+-Implementação de Download de Vídeos
+
+-botoes de escolha de Download para Vídeo ou Música
