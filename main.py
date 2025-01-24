@@ -20,11 +20,30 @@ def Download_musica(url ='str', destination='str',name='str'):
         os.rename(out_file, new_file) 
     except Exception as e:
         print("Erro: " + str(e))
-        
+            
     # RESULTADO DO DOWNLOAD
     name.value = yt.title
     print(yt.title + " O Download da Musica Foi concluido !!")
     
+def Download_video(url ='str', destination='str',name='str'):
+    video = YouTube(url,'WEB') #Link do video da video
+    try:
+        video = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+        use_po_token=True
+        out_file = video.download(output_path=destination)
+        # SALVAR NA PASTA 
+        base, ext = os.path.splitext(out_file) 
+        new_file = base + '.mp4'
+        os.rename(out_file, new_file) 
+
+        # RESULTADO DO DOWNLOAD
+        name.value = video.title
+        print(video.title + " O Download do Video foi concluido !!")
+    
+    except Exception as e:
+        print("Erro: " + str(e))
+    
+        
 def Tela_aplicativo(pagina:ft.Page):
     pagina.window_width = 600  # Largura da janela
     pagina.window_height = 900  # Altura da janela
@@ -40,9 +59,21 @@ def Tela_aplicativo(pagina:ft.Page):
     Destination = ft.TextField(label="Destination.",text_align=ft.TextAlign.LEFT, width=520)
     buscar = ft.ElevatedButton("Buscar Diretorio", on_click=lambda e: abrir_pasta(Destination))
     resultado_text = ft.Text("",style="bodyMedium")
-    btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: on_download(URL.value, Destination.value, resultado_text, name))
+    btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: on_download(URL.value, Destination.value, resultado_text, name,check_video,check_music))
     clear = ft.ElevatedButton("Limpar", on_click=lambda e: limpar_campos(URL, Destination, resultado_text))
     name = ft.Text("")
+    check_video = ft.Checkbox(label="Baixar Video")
+    check_music = ft.Checkbox(label="Baixar Music")
+    
+    def pressionado_disable(nao_pressionado, pressionado): #Função para desativar o botao
+        if nao_pressionado.value:
+            pressionado.disabled = True
+        else:
+            pressionado.disabled = False
+        pressionado.update()
+    
+    check_video.on_change = lambda e: pressionado_disable(check_video, check_music)
+    check_music.on_change = lambda e: pressionado_disable(check_music, check_video)
     
    #Layout da Pagina
     pagina.add(
@@ -60,7 +91,9 @@ def Tela_aplicativo(pagina:ft.Page):
                 URL,
                 txt_destination,
                 Destination,
-                ft.Row([resultado_text],alignment=ft.MainAxisAlignment.CENTER),
+                ft.Row(
+                    [check_video,check_music],alignment=ft.MainAxisAlignment.CENTER,
+                    ),
                 ft.Row(
                     [
                         buscar,
@@ -69,6 +102,7 @@ def Tela_aplicativo(pagina:ft.Page):
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
+                ft.Row([resultado_text],alignment=ft.MainAxisAlignment.CENTER),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
         ),
@@ -91,7 +125,7 @@ def abrir_pasta(destination_field: ft.TextField):
         destination_field.value = pasta
         destination_field.update()
 
-def on_download(url: str, destination: str, resultado_text: ft.Text,name: ft.Text):
+def on_download(url: str, destination: str, resultado_text: ft.Text,name: ft.Text,check_video: ft.Checkbox,check_music: ft.Checkbox):
     if not url:
         resultado_text.value = "Por favor, insira uma URL válida."
         return
@@ -100,8 +134,12 @@ def on_download(url: str, destination: str, resultado_text: ft.Text,name: ft.Tex
         resultado_text.value = "Por favor, insira um caminho de destino."
         return
     try:
-        resultado = Download_musica(url, destination,name)
-        resultado_text.value = f"Download da musica {name.value} Concluido !!"
+        if check_music.value == True:
+            resultado = Download_musica(url, destination,name)
+            resultado_text.value = f"Download da musica {name.value} Concluido !!"
+        if check_video.value == True:
+            resultado = Download_video(url, destination,name)
+            resultado_text.value = f"Download do video {name.value} Concluido !!"
     except Exception as e:
         resultado_text.value = f"Erro: {e}"
     # Atualiza o texto na interface
