@@ -7,6 +7,7 @@ from tkinter import filedialog
 def Download_musica(url ='str', destination='str',name='str'):
     
     yt = YouTube(url,'WEB') #Link do video da musica
+    #nova funcao
 
     try:
         video = yt.streams.filter(only_audio=True).first() 
