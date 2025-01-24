@@ -30,7 +30,7 @@
 -Clique em baixar e pronto, aparecerá que o download da musica/Video foi concluido (obs: se algo acontecer com o url, ou nao ser valido, o sofware vai dá um erro )
 
 
--Caso queira fazer um novo download, limpe os campos com o botão limpar que ele limpará automaticamente 
+-Caso queira fazer um novo download, limpe os campos com o botão 'limpar' que ele limpará automaticamente 
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
