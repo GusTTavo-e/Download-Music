@@ -43,3 +43,12 @@
 -ProgressBar (Ou quase um) meramente ilustrativo.
 
 -Remoção do codigo de mostrar o nome da musica/video no texto do 'Donwload Concluido'
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+# UPDATE:(26/01/2025)
+--------------------------------------------------------------------------------------------------------------------------------------
+-Implementação das Thumbnail dos videos/musicas que seram baixados.
+
+-Correção de Bugs
+
