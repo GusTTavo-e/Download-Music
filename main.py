@@ -8,25 +8,23 @@ import threading
 def Download_musica(url ='str', destination='str',texto_download ='str',barra_de_progresso='str'):
     
     yt = YouTube(url,'WEB') #Link do video da musica
-    #nova funcao
 
     try:
         video = yt.streams.filter(only_audio=True).first() 
         use_po_token=True
         # DOWNLOAD DO ARQUIVO
         out_file = video.download(output_path=destination)
+        
         # SALVAR NA PASTA 
         base, ext = os.path.splitext(out_file) 
         new_file = base + '.mp3'
         os.rename(out_file, new_file) 
-      # RESULTADO DO DOWNLOAD
-        print(yt.title)
-        print(" O Download da Musica Foi concluido !!")
-        texto_download.visible = False
-        texto_download.update()
-        barra_de_progresso.visible = False
-        barra_de_progresso.update() 
         
+      # DEIXANDO A BARRA DE DOWNLOAD INVISIVEL
+        texto_download(visible = False)
+        barra_de_progresso(visible = False)
+        barra_de_progresso.update() 
+        texto_download.update()
     except Exception as e:
         print("Erro: " + str(e))
 
@@ -38,7 +36,9 @@ def Download_video(url ='str', destination='str',texto_download ='str',barra_de_
         video = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
         use_po_token=True
         # DOWNLOAD DO ARQUIVO
+        
         out_file = video.download(output_path=destination)
+        
         # SALVAR NA PASTA 
         base, ext = os.path.splitext(out_file) 
         new_file = base + '.mp4'
@@ -46,11 +46,10 @@ def Download_video(url ='str', destination='str',texto_download ='str',barra_de_
 
         # RESULTADO DO DOWNLOAD
         print(" O Download do Video foi concluido !!")
-        texto_download.visible = False
-        texto_download.update()
-        barra_de_progresso.visible = False
+        texto_download(visible = False)
+        barra_de_progresso(visible = False)
         barra_de_progresso.update()
-        
+        texto_download.update()
     
     except Exception as e:
         print("Erro: " + str(e))
@@ -61,25 +60,25 @@ def Tela_aplicativo(pagina:ft.Page):
     pagina.title = "Download My Music"
     pagina.horizontal_alignment = 'center'
     pagina.vertical_alignment = "center"
-    pagina.bgcolor = ft.colors.BLUE_GREY_900
+    pagina.bgcolor = ft.colors.BLUE_GREY_800
     
     pb = ft.ProgressBar(width=400,visible=False)
     
+    #Criando os componentes
+    image_tumbr = ft.Image(src="C:\\Users\\GUSTAVO E HELOISA\\Pictures\\no-tumbnail.jpg", width=500, height=250)
     titulo = ft.Text("Download My Music",style="headLineMedium")
     txt_URL = ft.Text("Digite sua URL a baixo: ")
     URL = ft.TextField(label="URL = youtube.com.",text_align=ft.TextAlign.LEFT, width=520)
     txt_destination = ft.Text("Pressione 'Buscar' Para Achar a Pasta Desejada: ")
     Destination = ft.TextField(label="Destination.",text_align=ft.TextAlign.LEFT, width=520)
-    buscar = ft.ElevatedButton("Buscar Diretorio", on_click=lambda e: abrir_pasta(Destination,pagina))
+    buscar = ft.ElevatedButton("Buscar Diretorio", on_click=lambda e: abrir_pasta(Destination,pagina,image_tumbr,URL.value))
     resultado_text = ft.Text("",style="bodyLarge")
     texto_download = ft.Text("Aguarde o Download...",visible = False)
     barra_de_progresso = ft.ProgressBar(width=400,visible=False)
-    btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: on_download(URL.value, Destination.value, resultado_text,check_video,check_music,pb,texto_download,barra_de_progresso))
-    clear = ft.ElevatedButton("Limpar", on_click=lambda e: limpar_campos(URL, Destination, resultado_text,pb))
+    btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: on_download(URL.value, Destination.value, resultado_text,check_video,check_music,pb,texto_download,barra_de_progresso,image_tumbr))
+    clear = ft.ElevatedButton("Limpar", on_click=lambda e: limpar_campos(URL, Destination, resultado_text,pb,image_tumbr))
     check_video = ft.Checkbox(label="Baixar Video")
     check_music = ft.Checkbox(label="Baixar Music")
-    image_tumbr = ft.Image(src="C:\\Users\GUSTAVO E HELOISA\\Downloads\\vali.jpg", width=500, height=250)
-    
     
     def pressionado_disable(nao_pressionado, pressionado): #Função para desativar o botao
         if nao_pressionado.value:
@@ -133,26 +132,34 @@ def Tela_aplicativo(pagina:ft.Page):
     )
 )
     
-def limpar_campos(URL: ft.TextField, Destination: ft.TextField, resultado_text: ft.Text,pb:ft.ProgressBar):
+def limpar_campos(URL: ft.TextField, Destination: ft.TextField, resultado_text: ft.Text,pb:ft.ProgressBar,image_tumbr:ft.Image):
     URL.value = ""
     Destination.value = ""
     resultado_text.value = ""
+    pb.value = 0
+    image_tumbr.src = "C:\\Users\\GUSTAVO E HELOISA\\Pictures\\no-tumbnail.jpg"  # Reset to default thumbnail
     URL.update()
     Destination.update()
     resultado_text.update()
-     
-def abrir_pasta(destination_field: ft.TextField,pagina:ft.Page):
+    pb.update()
+    image_tumbr.update()
+    
+def abrir_pasta(destination_field: ft.TextField,pagina:ft.Page,image_tumbr:ft.Image,url='str'):
+    image_tumbr.src = YouTube(url,'WEB').thumbnail_url
+    image_tumbr.visible = True
+    image_tumbr.update()
+    
     def thread_function():
         pasta = filedialog.askdirectory(title="Selecione a Pasta",initialdir=os.getcwd())  # Abre o diálogo para escolher uma pasta
         if pasta:
             # Atualiza o campo de texto com o caminho da pasta escolhida
             destination_field.value = pasta
             destination_field.update()
-            
+        
     thread =threading.Thread(target=thread_function)
     thread.start()
 
-def on_download(url: str, destination: str, resultado_text: ft.Text,check_video: ft.Checkbox,check_music: ft.Checkbox,pb:ft.ProgressBar,texto_download:ft.Text,barra_de_progresso:ft.ProgressBar):
+def on_download(url: str, destination: str, resultado_text: ft.Text,check_video: ft.Checkbox,check_music: ft.Checkbox,pb:ft.ProgressBar,texto_download:ft.Text,barra_de_progresso:ft.ProgressBar,image_tumbr:ft.Image):
     if not url:
         resultado_text.value = "Por favor, insira uma URL válida."
         return
@@ -172,7 +179,8 @@ def on_download(url: str, destination: str, resultado_text: ft.Text,check_video:
                 pb.value = i*0.02
                 sleep(0.1)
                 pb.update()
-                
+            
+            
             resultado = Download_musica(url, destination,texto_download,barra_de_progresso)   
             resultado_text.value = f"Download da musica Concluido !!"
             
