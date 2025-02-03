@@ -21,8 +21,8 @@ def Download_musica(url ='str', destination='str',texto_download ='str',barra_de
         os.rename(out_file, new_file) 
         
       # DEIXANDO A BARRA DE DOWNLOAD INVISIVEL
-        texto_download(visible = False)
-        barra_de_progresso(visible = False)
+        texto_download.visible = False
+        barra_de_progresso.visible = False
         barra_de_progresso.update() 
         texto_download.update()
     except Exception as e:
@@ -46,8 +46,8 @@ def Download_video(url ='str', destination='str',texto_download ='str',barra_de_
 
         # RESULTADO DO DOWNLOAD
         print(" O Download do Video foi concluido !!")
-        texto_download(visible = False)
-        barra_de_progresso(visible = False)
+        texto_download.visible = False
+        barra_de_progresso.visible = False
         barra_de_progresso.update()
         texto_download.update()
     
@@ -71,7 +71,7 @@ def Tela_aplicativo(pagina:ft.Page):
     URL = ft.TextField(label="URL = youtube.com.",text_align=ft.TextAlign.LEFT, width=520)
     txt_destination = ft.Text("Pressione 'Buscar' Para Achar a Pasta Desejada: ")
     Destination = ft.TextField(label="Destination.",text_align=ft.TextAlign.LEFT, width=520)
-    buscar = ft.ElevatedButton("Buscar Diretorio", on_click=lambda e: abrir_pasta(Destination,pagina,image_tumbr,URL.value))
+    buscar = ft.ElevatedButton("Buscar Diretorio", on_click=lambda e: abrir_pasta(Destination,image_tumbr,URL.value))
     resultado_text = ft.Text("",style="bodyLarge")
     texto_download = ft.Text("Aguarde o Download...",visible = False)
     barra_de_progresso = ft.ProgressBar(width=400,visible=False)
@@ -94,6 +94,7 @@ def Tela_aplicativo(pagina:ft.Page):
     pagina.add(
         
     ft.Container(
+        
         width=450,  # Largura da tela ou container
         height=800,  # Altura da tela ou container
         bgcolor=ft.colors.WHITE,  # Cor de fundo para visualização
@@ -144,7 +145,7 @@ def limpar_campos(URL: ft.TextField, Destination: ft.TextField, resultado_text: 
     pb.update()
     image_tumbr.update()
     
-def abrir_pasta(destination_field: ft.TextField,pagina:ft.Page,image_tumbr:ft.Image,url='str'):
+def abrir_pasta(destination_field: ft.TextField,image_tumbr:ft.Image,url='str'):
     image_tumbr.src = YouTube(url,'WEB').thumbnail_url
     image_tumbr.visible = True
     image_tumbr.update()
@@ -180,10 +181,9 @@ def on_download(url: str, destination: str, resultado_text: ft.Text,check_video:
                 sleep(0.1)
                 pb.update()
             
-            
+
             resultado = Download_musica(url, destination,texto_download,barra_de_progresso)   
-            resultado_text.value = f"Download da musica Concluido !!"
-            
+            resultado_text.value = f"Download da musica Concluido !!"            
         if check_video.value == True:
             #Atualinzando a barra de progresso do download
             texto_download.visible = True
