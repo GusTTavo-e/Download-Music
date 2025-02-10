@@ -223,11 +223,11 @@ class Aplicativo_Downloader_Musica():
             pagina (ft.Page): A página que sera configurada.
         """
         
-        pagina.window_width = 600  # Largura da janela
-        pagina.window_height = 900  # Altura da janela
+        pagina.window.width = 600
+        pagina.window.height = 900
         pagina.title = "Download My Music"
         pagina.horizontal_alignment = 'center'
-        pagina.vertical_alignment = "center"
+        pagina.vertical_alignment = 'center'
         pagina.bgcolor = ft.colors.BLUE_GREY_800
         
         pb = ft.ProgressBar(width=400,visible=False)
