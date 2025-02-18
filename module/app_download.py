@@ -2,14 +2,14 @@ import os
 import flet as ft
 from pytubefix import YouTube
 from tkinter import filedialog
+import pathlib
 from time import sleep
 import threading
-
 
 class Aplicativo_Downloader_Musica():
       
     @classmethod
-    def _download_musica(cls, url:str,destination:str, texto_download:str,barra_de_progresso:str ):
+    def _download_musica(cls, url:str,destination:str, texto_download:str,barra_de_progresso:str):
     
         """
         Baixa a musica do youtube e salva no destino especifico.
@@ -27,6 +27,7 @@ class Aplicativo_Downloader_Musica():
         
         try:
             video = yt.streams.filter(only_audio=True).first() 
+            
             use_po_token=True
             
             # DOWNLOAD DO ARQUIVO
@@ -61,14 +62,18 @@ class Aplicativo_Downloader_Musica():
             None
         """
 
-        video = YouTube(url,'WEB') #Link do video da video
-        
+        # video = YouTube(url,'WEB') #Link do video da video
         try:
-            video = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-            use_po_token=True
-            # DOWNLOAD DO ARQUIVO
-            
-            out_file = video.download(output_path=destination)
+            video = YouTube(url,'WEB')
+
+            # Tentando pegar o vídeo com a maior resolução disponível (sem áudio, só vídeo)
+            video_stream = video.streams.filter(file_extension='mp4', only_video=True).order_by('resolution').desc().first()
+
+            if video_stream is None:
+                print("Nenhuma stream de vídeo encontrada.")
+            else:
+                print(f"Baixando vídeo com resolução: {video_stream.resolution}")
+                out_file = video_stream.download(output_path=destination)
             
             # SALVAR NA PASTA 
             base, ext = os.path.splitext(out_file) 
@@ -105,7 +110,7 @@ class Aplicativo_Downloader_Musica():
         destination.value = ""
         resultado_text.value = ""
         pb.value = 0
-        image_tumbr.src = "C:\\Users\\GUSTAVO E HELOISA\\Pictures\\no-tumbnail.jpg"  # Reset to default thumbnail
+        image_tumbr.src =str(pathlib.Path(__file__).parent / "no-tumbnail.jpg")  # Reset to default thumbnail
         url.update()
         destination.update()
         resultado_text.update()
@@ -137,7 +142,7 @@ class Aplicativo_Downloader_Musica():
         thread.start()
     
     @classmethod
-    def _on_download(cls, url: str, destination: str, resultado_text: ft.Text,check_video: ft.Checkbox,check_music: ft.Checkbox,pb:ft.ProgressBar,texto_download:ft.Text,barra_de_progresso:ft.ProgressBar,image_tumbr:ft.Image):
+    def _on_download(cls, url: str, destination: str, resultado_text: ft.Text,check_video: ft.Checkbox,check_music: ft.Checkbox,pb:ft.ProgressBar,texto_download:ft.Text,barra_de_progresso:ft.ProgressBar,menu_button: ft.PopupMenuButton,notification_count: ft.Text,image_tumbr:ft.Image):
         """
         Handles the download process for music or video from a given URL.
 
@@ -155,7 +160,13 @@ class Aplicativo_Downloader_Musica():
         Returns:
             None
         """
-
+        # notificação de download
+        titulo = YouTube(url,'WEB').title    
+        menu_button.items.append(ft.PopupMenuItem(text=titulo))
+        notification_count.value = str(len(menu_button.items)-1)
+        menu_button.update()
+        notification_count.update()
+        
         if not url:
             resultado_text.value = "Por favor, insira uma URL válida."
             return
@@ -166,6 +177,7 @@ class Aplicativo_Downloader_Musica():
         try:
             if check_music.value == True:
                 #Atualinzando a barra de progresso do download
+                
                 texto_download.visible = True
                 barra_de_progresso.visible = True
                 texto_download.update()
@@ -176,7 +188,6 @@ class Aplicativo_Downloader_Musica():
                     sleep(0.1)
                     pb.update()
                 
-
                 resultado = cls._download_musica(url, destination,texto_download,barra_de_progresso)   
                 resultado_text.value = f"Download da musica Concluido !!"            
             if check_video.value == True:
@@ -198,7 +209,7 @@ class Aplicativo_Downloader_Musica():
             resultado_text.value = f"Erro: {e}"
         # Atualiza o texto na interface
         resultado_text.update()
-
+    
     @classmethod
     def _pressionado_disable(cls, nao_pressionado, pressionado): #Função para desativar o botao
         """
@@ -214,8 +225,8 @@ class Aplicativo_Downloader_Musica():
         else:
             pressionado.disabled = False
         pressionado.update()
-            
-    def _tela_aplicativo(self, pagina:ft.Page):
+        
+    def _tela_aplicativo(self, pagina: ft.Page):
         """
         Configura a tela do aplicativo com os componentes necessarios.
         
@@ -223,17 +234,16 @@ class Aplicativo_Downloader_Musica():
             pagina (ft.Page): A página que sera configurada.
         """
         
-        pagina.window_width = 600  # Largura da janela
-        pagina.window_height = 900  # Altura da janela
+        pagina.window.width = 600
+        pagina.window.height = 900
         pagina.title = "Download My Music"
         pagina.horizontal_alignment = 'center'
-        pagina.vertical_alignment = "center"
-        pagina.bgcolor = ft.colors.BLUE_GREY_800
-        
+        pagina.vertical_alignment = 'center'
+        pagina.bgcolor = ft.colors.BLUE_GREY_900
         pb = ft.ProgressBar(width=400,visible=False)
         
         #Criando os componentes
-        image_tumbr = ft.Image(src="C:\\Users\\GUSTAVO E HELOISA\\Pictures\\no-tumbnail.jpg", width=500, height=250)
+        image_tumbr = ft.Image(src=str(pathlib.Path(__file__).parent / "no-tumbnail.jpg"), width=500, height=250)
         titulo = ft.Text("Download My Music",style="headLineMedium")
         txt_URL = ft.Text("Digite sua URL a baixo: ")
         URL = ft.TextField(label="URL = youtube.com.",text_align=ft.TextAlign.LEFT, width=520)
@@ -243,16 +253,49 @@ class Aplicativo_Downloader_Musica():
         resultado_text = ft.Text("",style="bodyLarge")
         texto_download = ft.Text("Aguarde o Download...",visible = False)
         barra_de_progresso = ft.ProgressBar(width=400,visible=False)
-        btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: self._on_download(URL.value, Destination.value, resultado_text,check_video,check_music,pb,texto_download,barra_de_progresso,image_tumbr))
+        btn_baixar = ft.ElevatedButton("Baixar", on_click = lambda e: self._on_download(URL.value, Destination.value, resultado_text,check_video,check_music,pb,texto_download,barra_de_progresso,menu_button,notification_count,image_tumbr))
         clear = ft.ElevatedButton("Limpar", on_click=lambda e: self._limpar_campos(URL, Destination, resultado_text,pb,image_tumbr))
         check_video = ft.Checkbox(label="Baixar Video")
         check_music = ft.Checkbox(label="Baixar Music")
-        
-    
         check_video.on_change = lambda e: self._pressionado_disable(check_video, check_music)
         check_music.on_change = lambda e: self._pressionado_disable(check_music, check_video)
+         
+        # criando uma notificação de items dentro da lista de downloads
         
-    #Layout da Pagina
+        # Contador de notificações
+        notification_count = ft.Text("", size=12, color="white")
+    
+        # Badge vermelho para a notificação
+        badge = ft.Container(
+            content=notification_count,
+            bgcolor="red",
+            padding=ft.padding.symmetric(horizontal=6, vertical=-2),
+            border_radius=6,
+            alignment=ft.alignment.top_right,
+        )
+    
+        # PopupMenuButton (ícone de menu)
+        menu_button = ft.PopupMenuButton(
+        icon=ft.icons.DOWNLOAD,
+        items=[
+            ft.PopupMenuItem(text="")
+        ]
+        )
+    
+        # Stack para sobrepor a notificação no canto do menu
+        menu_with_notification = ft.Stack(
+        [
+            menu_button,
+            ft.Container(
+                content=badge,
+                right=2,  # Ajuste fino para posicionamento
+                top=20,  # Ajuste fino para posicionamento
+            )
+        ]
+    )
+        
+        
+        #Layout da Pagina
         pagina.add(
             
         ft.Container(
@@ -264,36 +307,22 @@ class Aplicativo_Downloader_Musica():
             border_radius=25,
             content=ft.Column(
                 [
+                    ft.Row([menu_with_notification], alignment=ft.MainAxisAlignment.END),
                     ft.Row([titulo],alignment=ft.MainAxisAlignment.CENTER),
                     image_tumbr,
                     txt_URL,
                     URL,
                     txt_destination,
                     Destination,
-                    ft.Row(
-                        [check_video,check_music],alignment=ft.MainAxisAlignment.CENTER,
-                        ),
-                    ft.Row(
-                        [
-                            buscar,
-                            btn_baixar,
-                            clear,
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                    ),
+                    ft.Row([check_video,check_music],alignment=ft.MainAxisAlignment.CENTER),
+                    ft.Row([buscar,btn_baixar,clear,],alignment=ft.MainAxisAlignment.CENTER),
                     ft.Row([resultado_text],alignment=ft.MainAxisAlignment.CENTER),
-                    ft.Column(
-                        [
-                            texto_download,
-                            barra_de_progresso,
-                            pb,
-                        ]
-                    )
+                    ft.Column([texto_download,barra_de_progresso,pb])
                 ],
-                alignment=ft.MainAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER
             )
         )
     )
-
+  
     def _run(self):
         ft.app(target=self._tela_aplicativo)
